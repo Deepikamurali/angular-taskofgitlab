@@ -1,0 +1,112 @@
+<div class="card">
+  <h5 class="card-header">Angular Reactive Form</h5>
+  <div class="card-body">
+    <form [formGroup]="registerform">
+      <div>
+        <button class="primary" *ngIf="!editv" (click)="onReset()">
+          Add user
+        </button>
+      </div>
+
+      <div class="row">
+        <label>Name</label>
+        <input type="text" formControlName="name" class="form-control" />
+        <div *ngIf="submitted && rf.name.errors?.required" class="in-valid">
+          Name is required
+        </div>
+      </div>
+
+      <div class="row">
+        <label>Description</label>
+        <input type="text" formControlName="description" class="form-control" />
+      </div>
+
+      <div class="row">
+        <label>Status</label>
+        <input type="text" formControlName="status" class="form-control" />
+      </div>
+
+      <div class="row">
+        <label>Priority</label>
+        <select class="form-control" formControlName="priority">
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <label>Suggested Solution</label>
+        <input
+          type="text"
+          formControlName="suggested_solution"
+          class="form-control"
+        />
+      </div>
+
+      <div class="row">
+        <label>Assigned Date</label>
+        <input
+          type="date"
+          formControlName="assigned_date"
+          class="form-control"
+        />
+      </div>
+
+      <div class="row">
+        <label>Closing Date</label>
+        <input
+          type="date"
+          formControlName="closing_date"
+          class="form-control"
+        />
+      </div>
+      <br />
+      <div class="text-center">
+        <button class="primary" (click)="onSubmit()">
+          {{ editv ? 'Update' : 'Register' }}
+        </button>
+        <button class="primary" (click)="onReset()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+<br />
+<div class="card">
+  <div class="card-body">
+    <table class="table table-striped" datatable>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Status</th>
+          <th>Priority</th>
+          <th>Suggested Solution</th>
+          <th>Assigned Date</th>
+          <th>Closing Date</th>
+          <th>Edit</th>
+          <th>Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of registeredList; let i = index">
+          <td>{{ user.name }}</td>
+          <td>{{ user.description }}</td>
+          <td>{{ user.status }}</td>
+          <td>{{ user.priority }}</td>
+          <td>{{ user.suggested_solution }}</td>
+          <td>{{ user.assigned_date | date }}</td>
+          <td>{{ user.closing_date | date }}</td>
+          <td>
+            <button class="primary" (click)="edit(user, user.id, i)">
+              Edit
+            </button>
+          </td>
+          <td>
+            <button class="primary" (click)="delete(user.id, i)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
