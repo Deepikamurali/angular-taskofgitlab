@@ -2,17 +2,14 @@
   <h5 class="card-header">Angular Reactive Form</h5>
   <div class="card-body">
     <form [formGroup]="registerform">
-      <div>
-        <button class="primary" *ngIf="!editv" (click)="onReset()">
-          Add user
-        </button>
-      </div>
-
       <div class="row">
         <label>Name</label>
         <input type="text" formControlName="name" class="form-control" />
         <div *ngIf="submitted && rf.name.errors?.required" class="in-valid">
           Name is required
+        </div>
+        <div *ngIf="submitted && rf.name.errors?.pattern" class="in-valid">
+          Name should contain only alphbet.
         </div>
       </div>
 
@@ -23,7 +20,10 @@
 
       <div class="row">
         <label>Status</label>
-        <input type="text" formControlName="status" class="form-control" />
+        <select class="form-control" formControlName="status">
+          <option value="true">True</option>
+          <option value="false">Fasle</option>
+        </select>
       </div>
 
       <div class="row">
@@ -61,6 +61,13 @@
           class="form-control"
         />
       </div>
+      <div class="row">
+        <label>Assignee</label>
+        <select class="form-control" formControlName="assignee">
+          <option value="1">1</option>
+        </select>
+      </div>
+
       <br />
       <div class="text-center">
         <button class="primary" (click)="onSubmit()">

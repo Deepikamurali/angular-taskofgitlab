@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-//import { HttpClient } from '@angular/common/http';
-import { Http, Response } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
+// import { Http, Response } from '@angular/http';
+import { DatePipe } from '@angular/common';
 
 import {
   AbstractControl,
@@ -18,7 +19,7 @@ export class AppComponent implements OnInit {
   registerform: FormGroup;
   submitted: boolean = false;
   editv: boolean = false;
-  baseUrl = `http://65.2.51.31:9008/api/task-viewset`;
+  baseUrl = `https://65.2.51.31:9008/api/task-viewset`;
   selected_index: any;
   registeredList: any = [
     {
@@ -31,8 +32,8 @@ export class AppComponent implements OnInit {
       suggested_solution:
         'When serving resources, make sure you send the content-type header to appropriately\nmatch the type of the resource being served. For example, if you are serving an HTML page,\nyou should send the HTTP header:\nContent-Type: text/html',
       risk_id: null,
-      assigned_date: '2023-02-22T00:00:00Z',
-      closing_date: '2023-02-25T00:00:00Z',
+      assigned_date: '2023-03-01',
+      closing_date: '2023-03-01',
       owner: null,
       assignee: [1],
     },
@@ -63,14 +64,15 @@ export class AppComponent implements OnInit {
       assignee: [1],
     },
   ];
-  constructor(private fb: FormBuilder, private http: Http) {}
+listindex: any;
+  constructor(private fb: FormBuilder, private http: HttpClient) {}
 
   ngOnInit() {
     this.registerform = this.fb.group({
-      name: ['', Validators.required],
+      name: ['', [Validators.required, Validators.pattern(/[A-Za-z]/g)]],
       description: [''],
       status: [''],
-      priority: ['', [Validators.required, Validators.pattern(/[0-2]{1}/g)]],
+      priority: ['', [Validators.pattern(/[0-2]{1}/g)]],
       suggested_solution: [''],
       assigned_date: [''],
       closing_date: [''],
@@ -80,7 +82,6 @@ export class AppComponent implements OnInit {
     this.getlist();
   }
   getlist() {
-    console.log('api called');
     this.http.get(this.baseUrl).subscribe(
       (data: any) => {
         console.log('api called', data);
@@ -101,8 +102,18 @@ export class AppComponent implements OnInit {
   }
   edit(user, i, listindex) {
     this.selected_index = i;
+    this.listindex = listindex;
     this.editv = true;
+
     this.registerform.patchValue(user);
+    this.registerform.patchValue({
+      assigned_date: this.convertdate(
+        this.registerform.controls.assigned_date.value
+      ),
+      closing_date: this.convertdate(
+        this.registerform.controls.closing_date.value
+      ),
+    });
   }
   delete(index, listindex) {
     this.registeredList.splice(listindex, 1);
@@ -117,17 +128,26 @@ export class AppComponent implements OnInit {
     );
   }
 
+  convertdate(date2) {
+    const convertedDate = new Date(date2);
+    const datePipe = new DatePipe('en-US');
+    const formattedDate = datePipe.transform(convertedDate, 'yyyy-MM-dd');
+
+    console.log(formattedDate);
+    return formattedDate;
+  }
+
   onSubmit() {
     this.submitted = true;
-    console.log('sumbit called');
+    console.log('sumbit called', this.registerform.value);
+    console.log('sumbit called', this.registerform.value);
     if (this.registerform.invalid) {
       return;
     } else {
       if (this.editv) {
-        console.log(this.registerform.controls.value);
-        //this.registeredList[this.selected_index] = this.registerform.value;
+        this.registeredList[this.listindex] = this.registerform.value;
         let data = {};
-        data = this.registerform.controls.value;
+        data = this.registerform.value;
         this.http
           .post(`${this.baseUrl}/${this.selected_index}`, data)
           .subscribe(
@@ -139,11 +159,11 @@ export class AppComponent implements OnInit {
               console.log(err);
             }
           );
-        this.onReset();
+         this.onReset();
       } else {
-        this.registeredList.push(this.registerform.controls.value);
+        this.registeredList.push(this.registerform.value);
         let data = {};
-        data = this.registerform.controls.value;
+        data = this.registerform.value;
         this.http.post(`${this.baseUrl}`, data).subscribe(
           (data: any) => {
             console.log('api called', data);
@@ -156,14 +176,4 @@ export class AppComponent implements OnInit {
       }
     }
   }
-}
-
-export function duplicatevalidation(
-  control: AbstractControl
-): { [key: string]: any } | null {
-  let value = this?.registerform?.value;
-  if (value?.password != value?.confirmPassword) {
-    return { duplicate: true };
-  }
-  return null;
 }
